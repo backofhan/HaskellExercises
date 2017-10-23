@@ -55,3 +55,12 @@ instance (Monad m) => Applicative (StateT s m) where
     (f, s1) <- smf s
     (a, s2) <- sma s1
     return (f a, s2)
+
+instance (Monad m) => Monad (StateT s m) where
+  return :: a -> StateT s m a
+  return = pure
+
+  (>>=) :: StateT s m a -> (a -> StateT s m b) ->StateT s m b
+  (StateT sma) >>= f  = StateT $ \s->do
+                                   (a, s1) <- sma s
+                                   runStateT (f a) s1
