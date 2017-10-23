@@ -1,1 +1,1 @@
-# SimpleProjectTemplate
+# CH26 Exercises
