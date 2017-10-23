@@ -14,4 +14,25 @@ instance Applicative m => Applicative (EitherT e m) where
   pure = EitherT . pure . Right
 
   (<*>) :: EitherT e m (a -> b) -> EitherT e m a -> EitherT e m b
-  emf <*> ema = EitherT $ (<*>) <$> runEitherT emf <*> runEitherT ema
+  (EitherT emf) <*> (EitherT ema) = EitherT $ (<*>) <$> emf <*> ema
+
+instance Monad m => Monad (EitherT e m) where
+  return :: a -> EitherT e m a
+  return = pure
+
+  (>>=) :: EitherT e m a -> (a -> EitherT e m b) -> EitherT e m b
+  (EitherT v) >>= f = EitherT $ do
+    ema <- v
+    case ema of
+      Left e -> return $ Left e
+      Right a -> runEitherT $ f a
+
+swapEither :: Either a b -> Either b a
+swapEither (Left a) = Right a
+swapEither (Right b) = Left b
+
+swampEitherT :: (Functor m) => EitherT e m a -> EitherT a m e
+swampEitherT (EitherT ema) = EitherT $ swapEither <$> ema
+
+eitherT :: Monad m => (a -> m c) -> (b -> m c) -> EitherT a m b -> m c
+eitherT fa fb (EitherT amb)= amb >>= either fa fb
