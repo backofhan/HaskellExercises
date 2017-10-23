@@ -36,3 +36,12 @@ swampEitherT (EitherT ema) = EitherT $ swapEither <$> ema
 
 eitherT :: Monad m => (a -> m c) -> (b -> m c) -> EitherT a m b -> m c
 eitherT fa fb (EitherT amb)= amb >>= either fa fb
+
+-- 26.5 StateT
+newtype StateT s m a =
+  StateT { runStateT :: s -> m (a, s) }
+
+instance (Functor m) => Functor (StateT s m) where
+  fmap :: (a -> b) -> StateT s m a -> StateT s m b
+  fmap f (StateT sma)= StateT $ (fmap.fmap) g sma
+                       where g (a, s) = (f a, s)
