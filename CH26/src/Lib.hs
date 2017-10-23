@@ -1,6 +1,10 @@
 {-# LANGUAGE InstanceSigs #-}
 module Lib where
 
+import Control.Monad.Trans.Maybe
+import Control.Monad.Trans.Reader
+import Control.Monad.Trans.Except
+
 -- 26.3 EitherT
 newtype EitherT e m a =
   EitherT { runEitherT :: m (Either e a)}
@@ -64,3 +68,7 @@ instance (Monad m) => Monad (StateT s m) where
   (StateT sma) >>= f  = StateT $ \s->do
                                    (a, s1) <- sma s
                                    runStateT (f a) s1
+
+-- 26.8 Lexically inner is structurally outer, Wrap It Up
+embedded :: MaybeT (ExceptT String (ReaderT () IO)) Int
+embedded =  undefined -- ??? (const (Right (Just 1)))
