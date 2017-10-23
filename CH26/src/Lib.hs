@@ -45,3 +45,13 @@ instance (Functor m) => Functor (StateT s m) where
   fmap :: (a -> b) -> StateT s m a -> StateT s m b
   fmap f (StateT sma)= StateT $ (fmap.fmap) g sma
                        where g (a, s) = (f a, s)
+
+instance (Monad m) => Applicative (StateT s m) where
+  pure :: a -> StateT s m a
+  pure a = StateT $ \s->return (a, s)
+
+  (<*>) :: StateT s m (a -> b) -> StateT s m a -> StateT s m b
+  (StateT smf) <*> (StateT sma) = StateT $ \s-> do
+    (f, s1) <- smf s
+    (a, s2) <- sma s1
+    return (f a, s2)
