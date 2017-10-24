@@ -1,6 +1,9 @@
 module Main where
 
 import Lib
+import Control.Monad.Trans.Maybe
+import Control.Monad.Trans.Reader
+import Control.Monad.Trans.Except
 
 main :: IO ()
 main = do
@@ -9,4 +12,3 @@ main = do
   putStrLn "Use 'stack ghci' to start ghci to play around. Enjoy."
 
   -- Examples for playing around
-  

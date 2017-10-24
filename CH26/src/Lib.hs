@@ -70,5 +70,6 @@ instance (Monad m) => Monad (StateT s m) where
                                    runStateT (f a) s1
 
 -- 26.8 Lexically inner is structurally outer, Wrap It Up
+  -- I have to inject 'return' to wrap value in IO monad. Any better solution?
 embedded :: MaybeT (ExceptT String (ReaderT () IO)) Int
-embedded =  undefined -- ??? (const (Right (Just 1)))
+embedded = (MaybeT . ExceptT . ReaderT) (const $ return (Right (Just 1)))
