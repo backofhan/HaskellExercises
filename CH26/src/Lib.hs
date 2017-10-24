@@ -5,6 +5,7 @@ import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Class
+import Control.Monad.IO.Class
 
 -- 26.3 EitherT
 newtype EitherT e m a =
@@ -83,3 +84,33 @@ instance MonadTrans (EitherT e) where
 instance MonadTrans (StateT r) where
   lift :: (Monad m) => m a -> StateT r m a
   lift ma = StateT $ \r -> let g a = (a, r) in fmap g ma
+
+-- 26.10
+  -- instance could not be hidden, we have to screate another MaybeT
+newtype MaybeT' m a = MaybeT' {runMaybeT' :: m (Maybe a)}
+
+instance Functor m => Functor (MaybeT' m) where
+  fmap :: (a -> b) -> MaybeT' m a -> MaybeT' m b
+  fmap f (MaybeT' mma) = MaybeT' $ (fmap.fmap) f mma
+
+instance Applicative m => Applicative (MaybeT' m) where
+  pure :: a -> MaybeT' m a
+  pure = MaybeT' . pure . pure
+
+  (<*>) :: MaybeT' m (a -> b) -> MaybeT' m a -> MaybeT' m b
+  (MaybeT' mf) <*> (MaybeT' ma) = MaybeT' $ (<*>) <$> mf <*> ma
+
+instance Monad m => Monad (MaybeT' m) where
+  return :: a -> MaybeT' m a
+  return = pure
+
+  (>>=) :: MaybeT' m a -> (a -> MaybeT' m b) -> MaybeT' m b
+  (MaybeT' mma) >>= f = MaybeT' $ do
+    ma <- mma -- Maybe a
+    case ma of
+      Nothing -> return Nothing
+      Just a -> runMaybeT' $ f a
+
+instance (MonadIO m) => MonadIO (MaybeT' m) where
+  liftIO :: IO a -> MaybeT' m a
+  liftIO = undefined
