@@ -6,6 +6,9 @@ import Control.Monad.Trans.Reader
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Class
 import Control.Monad.IO.Class
+import Data.Functor.Identity
+import Control.Monad
+import Control.Applicative
 
 main :: IO ()
 main = do

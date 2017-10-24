@@ -6,6 +6,9 @@ import Control.Monad.Trans.Reader
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Class
 import Control.Monad.IO.Class
+import Data.Functor.Identity
+import Control.Monad
+import Control.Applicative
 
 -- 26.3 EitherT
 newtype EitherT e m a =
@@ -115,3 +118,43 @@ instance Monad m => Monad (MaybeT' m) where
 instance (MonadIO m) => MonadIO (MaybeT' m) where
   liftIO :: IO a -> MaybeT' m a
   liftIO = MaybeT' . liftIO . fmap Just
+
+-- Chapter Exercises
+  -- 1
+rDec :: Num a => Reader a a
+rDec = reader $ \a -> a - 1
+
+  -- 2
+rDec' :: Num a => Reader a a
+rDec' = reader $ flip (-) 1
+
+  -- 3 & 4
+rShow :: Show a => ReaderT a Identity String
+rShow = reader show
+
+  -- 5
+rPrintAndInc :: (Num a, Show a) => ReaderT a IO a
+rPrintAndInc = ReaderT $ \a -> putStrLn ("Hi: " ++ show a) >> return (a + 1)
+
+  -- 6
+sPrintIncAccum :: (Num a, Show a) => StateT a IO String
+sPrintIncAccum = StateT $ \a -> putStrLn ("Hi: " ++ show a) >> return (show a, a+1)
+
+-- Fix the code (Original code are there following fixed ones)
+isValid :: String -> Bool
+isValid v = '!' `elem` v
+
+maybeExcite :: MaybeT IO String
+maybeExcite = MaybeT $ do  -- maybeExcite = do
+  v <- getLine
+  guard $ isValid v -- When invalid, this one throws exception rather than returning Nothing
+                    -- Because it is in a IO (Maybe String), not a Maybe Monad
+  return $ Just v -- return v
+
+doExcite :: IO ()
+doExcite = do
+  putStrLn "say something excite!"
+  excite <- runMaybeT maybeExcite <|>  return Nothing -- excite <- maybeExcite
+  case excite of
+    Nothing -> putStrLn "MOAR EXCITE"
+    Just e -> putStrLn ("Good, was very excite: " ++ e)
