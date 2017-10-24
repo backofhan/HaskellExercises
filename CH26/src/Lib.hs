@@ -111,6 +111,7 @@ instance Monad m => Monad (MaybeT' m) where
       Nothing -> return Nothing
       Just a -> runMaybeT' $ f a
 
+  -- Finnally, it type checks. But how to verify?
 instance (MonadIO m) => MonadIO (MaybeT' m) where
   liftIO :: IO a -> MaybeT' m a
-  liftIO = undefined
+  liftIO = MaybeT' . liftIO . fmap Just
