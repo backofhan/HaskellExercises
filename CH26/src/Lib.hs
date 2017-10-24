@@ -4,6 +4,7 @@ module Lib where
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader
 import Control.Monad.Trans.Except
+import Control.Monad.Trans.Class
 
 -- 26.3 EitherT
 newtype EitherT e m a =
@@ -73,3 +74,12 @@ instance (Monad m) => Monad (StateT s m) where
   -- I have to inject 'return' to wrap value in IO monad. Any better solution?
 embedded :: MaybeT (ExceptT String (ReaderT () IO)) Int
 embedded = (MaybeT . ExceptT . ReaderT) (const $ return (Right (Just 1)))
+
+-- 26.9 MonadTrans
+instance MonadTrans (EitherT e) where
+  lift :: (Monad m) => m a -> EitherT e m a
+  lift = EitherT . fmap Right
+
+instance MonadTrans (StateT r) where
+  lift :: (Monad m) => m a -> StateT r m a
+  lift ma = StateT $ \r -> let g a = (a, r) in fmap g ma
