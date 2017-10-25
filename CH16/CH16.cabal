@@ -1,4 +1,4 @@
-name:                CH26
+name:                CH16
 version:             0.1.0.0
 -- synopsis:
 -- description:
@@ -17,24 +17,22 @@ library
   hs-source-dirs:      src
   exposed-modules:     Lib
   build-depends:       base >= 4.7 && < 5
-                     , transformers
   default-language:    Haskell2010
 
-executable CH26-exe
+executable CH16-exe
   hs-source-dirs:      app
   main-is:             Main.hs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
-                     , CH26
-                     , transformers
+                     , CH16
   default-language:    Haskell2010
 
-test-suite CH26-test
+test-suite CH16-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Spec.hs
   build-depends:       base
-                     , CH26
+                     , CH16
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 
