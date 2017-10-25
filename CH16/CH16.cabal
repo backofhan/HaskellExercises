@@ -17,6 +17,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     Lib
   build-depends:       base >= 4.7 && < 5
+                     , QuickCheck
   default-language:    Haskell2010
 
 executable CH16-exe
@@ -25,6 +26,7 @@ executable CH16-exe
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
                      , CH16
+                     , QuickCheck
   default-language:    Haskell2010
 
 test-suite CH16-test
