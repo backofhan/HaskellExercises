@@ -1,4 +1,5 @@
 {-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE FlexibleInstances #-}
 module Lib where
 
 import Test.QuickCheck
@@ -110,3 +111,91 @@ instance (Arbitrary a, Arbitrary b) => Arbitrary (Four' a b) where
   -- 8
 -- Can not implement because Trival has kind *
 -- Only possible to implement functor for type which has kind * -> *
+
+-- 16.11 Ignoring Possibilities
+  -- Exercise: Possibly
+data Possibly a =
+    LolNope
+  | Yeppers a
+  deriving (Eq, Show)
+
+instance Functor Possibly where
+  fmap _ LolNope = LolNope
+  fmap f (Yeppers a) = Yeppers (f a)
+
+  -- Either, Short Exercise
+  -- 1
+data Sum a b =
+    First a
+  | Second b
+  deriving (Eq, Show)
+
+instance Functor (Sum a) where
+  fmap _ (First a) = First a
+  fmap f (Second b) = Second (f b)
+
+-- 16.17 Chapter exercises
+  -- Possible to write a valid functor?
+    -- 1 No
+    -- 2 Yes
+    -- 3 Yes
+    -- 4 Yes
+    -- 5 No
+
+  -- Rearrange arguments
+    -- 1 Already implemented above. Just flip a & b here
+
+    -- 2
+data Company a c b =
+    DeepBlue a c
+  | Something b
+
+instance Functor (Company e e') where
+  fmap f (Something b) = Something (f b)
+  fmap _ (DeepBlue a c) = DeepBlue a c
+
+    -- 3
+data More b a =
+    L a b a
+  | R b a b
+  deriving (Eq, Show)
+
+instance Functor (More x) where
+  fmap f (L a b a') = L (f a) b (f a')
+  fmap f (R b a b') = R b (f a) b'
+
+  -- Write Functor instances for the following datatypes
+    -- 1
+data Quant a b =
+    Finance
+  | Desk a
+  | Bloor b
+
+instance Functor (Quant a) where
+  fmap _ Finance = Finance
+  fmap _ (Desk a) = Desk a
+  fmap f (Bloor b) = Bloor $ f b
+
+    -- 2
+data K a b = K a
+
+instance Functor (K a) where
+  fmap _ (K a) = K a
+
+    -- 3
+newtype Flip f a b = Flip (f b a) deriving (Eq, Show)
+
+instance Functor (Flip K a) where
+  fmap f (Flip (K b)) = Flip (K (f b))
+
+    -- 4
+data EvilGoateeConst a b = GoatyConst b
+
+instance Functor (EvilGoateeConst a) where
+  fmap f (GoatyConst b) = GoatyConst (f b)
+
+    -- 5
+data LiftItOut f a = LiftItOut (f a)
+
+instance Functor (LiftItOut f) where
+  fmap fn (LiftItOut (f a)) = LiftItOut (f (fn a))
