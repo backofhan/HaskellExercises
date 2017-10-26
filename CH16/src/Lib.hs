@@ -194,8 +194,14 @@ data EvilGoateeConst a b = GoatyConst b
 instance Functor (EvilGoateeConst a) where
   fmap f (GoatyConst b) = GoatyConst (f b)
 
-    -- 5
+    -- 5 f needs to be Functor as well
 data LiftItOut f a = LiftItOut (f a)
 
-instance Functor (LiftItOut f) where
-  fmap fn (LiftItOut (f a)) = LiftItOut (f (fn a))
+instance Functor f => Functor (LiftItOut f) where
+  fmap f (LiftItOut fa) = LiftItOut (fmap f fa)
+
+    -- 6
+data Parappa f g a = DaWrappa (f a) (g a)
+
+instance (Functor f, Functor g) => Functor (Parappa f g) where
+  fmap f (DaWrappa fa ga) = DaWrappa (fmap f fa) (fmap f ga)
