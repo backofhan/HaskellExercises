@@ -4,7 +4,7 @@ version:             0.1.0.0
 -- description:
 homepage:            https://github.com/backofhan/HaskellExercises#readme
 license:             BSD3
-license-file:        LICENSE
+-- license-file:        LICENSE
 author:              Xiaofeng Ge
 maintainer:          backofhan@gmail.com
 copyright:           2017 Xiafeng Ge
