@@ -51,3 +51,4 @@ main = do
 
   -- quickCheck (memLeftIdentity :: Fun Int (String, Int) -> Int -> Bool)
   -- quickCheck (memRightIdentity :: Fun Char ((Product Int), Char) -> Char -> Bool)
+  -- quickCheck (memAssoc :: Fun Int (String, Int) -> Fun Int (String, Int) -> Fun Int (String, Int) -> Int -> Bool)

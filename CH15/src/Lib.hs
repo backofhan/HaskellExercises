@@ -262,3 +262,7 @@ memLeftIdentity (Fun _ f) s =
 memRightIdentity :: (Eq a, Eq s, Monoid a) => Fun s (a,s) -> s -> Bool
 memRightIdentity (Fun _ f) s =
   runMem ((Mem f) `mappend` mempty) s == runMem (Mem f) s
+
+memAssoc :: (Eq a, Eq s, Monoid a) => Fun s (a,s) -> Fun s (a,s) -> Fun s (a,s) -> s -> Bool
+memAssoc (Fun _ a) (Fun _ b) (Fun _ c) s =
+  runMem ((Mem a `mappend` Mem b) `mappend` Mem c) s == runMem (Mem a `mappend` (Mem b `mappend` Mem c)) s
