@@ -123,18 +123,40 @@ instance Semigroup (Or a b) where
 instance (Arbitrary a, Arbitrary b) => Arbitrary (Or a b) where
   arbitrary = frequency [(1, Fst <$> arbitrary), (1, Snd <$> arbitrary)]
 
-    -- 9  TODO Test
+    -- 9
 newtype Combine a b =
   Combine { unCombine :: a -> b}
 
+-- It seems we have to implement a Show instance to start quickCheck
+instance Show (Combine a b) where
+  show _ = "Func :: a -> b"
+
 instance Semigroup b => Semigroup (Combine a b) where
   (Combine f) <> (Combine g) = Combine ((<>) <$> f <*> g)
+  -- The following implementation seems from Semigroup package itself
+  -- = Combine (f <> g)
 
-    -- 10 TODO Test
+instance (CoArbitrary a, Arbitrary b) => Arbitrary (Combine a b) where
+  arbitrary = Combine <$> arbitrary
+
+combineAssoc :: (Eq b, Semigroup b) => Combine a b -> Combine a b -> Combine a b -> a -> Bool
+combineAssoc a b c v = unCombine (a <> (b <> c)) v == unCombine ((a <> b) <> c) v
+
+    -- 10
 newtype Comp a = Comp {unComp :: a -> a}
 
+-- It seems we have to implement a Show instance to start quickCheck
+instance Show (Comp a) where
+  show _ = "Func :: a -> a"
+
 instance Semigroup a => Semigroup (Comp a) where
-  (Comp f) <> (Comp g) = Comp ((<>) <$> f <*> g)
+  (Comp f) <> (Comp g) = Comp ((<>) <$> f <*> g) -- f <> g also works
+
+instance (CoArbitrary a, Arbitrary a) => Arbitrary (Comp a) where
+  arbitrary = Comp <$> arbitrary
+
+compAssoc :: (Eq a, Semigroup a) => Comp a -> Comp a -> Comp a -> a -> Bool
+compAssoc a b c v = unComp (a <> (b <> c)) v == unComp ((a <> b) <> c) v
 
     -- 11
 data Validation' a b =

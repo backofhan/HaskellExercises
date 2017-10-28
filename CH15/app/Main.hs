@@ -24,10 +24,8 @@ main = do
   -- quickCheck (semigroupAssoc :: BoolDisj -> BoolDisj -> BoolDisj -> Bool)
   -- quickCheck (semigroupAssoc :: Or Int Char -> Or Int Char -> Or Int Char -> Bool)
 
-  -- let f = Combine $ \n -> Sum (n+1)
-  -- let g = Combine $ \n -> Sum (n-1)
+  -- quickCheck (combineAssoc :: Combine Int String -> Combine Int String -> Combine Int String -> Int -> Bool) -- Note: combineAssoc
 
   -- quickCheck (semigroupAssoc :: Validation' (Product Int) Char -> Validation' (Product Int) Char -> Validation' (Product Int) Char -> Bool)
   -- quickCheck (semigroupAssoc :: AccumulateRight (Product Int) String ...
   -- quickCheck (semigroupAssoc :: AccumulateBoth (Product Int) String ...
-  
