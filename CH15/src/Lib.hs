@@ -4,6 +4,7 @@ module Lib where
 import Test.QuickCheck
 import Data.Monoid hiding((<>))
 import Data.Semigroup
+import Test.QuickCheck.Function
 
 -- 15.10 Exercise: Optional Monoid
 data Optional a =
@@ -192,3 +193,72 @@ instance (Semigroup a, Semigroup b) => Semigroup (AccumulateBoth a b) where
 
 instance (Arbitrary a, Arbitrary b) => Arbitrary (AccumulateBoth a b) where
   arbitrary = AccumulateBoth <$> arbitrary
+
+  -- Monoid Exercises
+    -- 1
+instance Monoid Trivial where
+  mempty = Trivial
+  mappend = (<>)
+
+    -- 2
+instance (Monoid a, Semigroup a) => Monoid (Identity a) where
+  mempty = Identity mempty
+  mappend = (<>)
+
+    -- 3
+instance (Monoid a, Monoid b, Semigroup a, Semigroup b) => Monoid (Two a b) where
+  mempty = Two mempty mempty
+  mappend = (<>)
+
+    -- 4
+instance Monoid BoolConj where
+  mempty = BoolConj True
+  mappend = (<>)
+
+    --5
+instance Monoid BoolDisj where
+  mempty = BoolDisj False
+  mappend = (<>)
+
+    --6
+instance (Monoid b, Semigroup b) => Monoid (Combine a b) where
+  mempty = Combine $ const mempty
+  mappend = (<>)
+
+combineLeftIdentity :: (Eq b, Semigroup b, Monoid b) => Combine a b -> a -> Bool
+combineLeftIdentity f v = unCombine f v == unCombine (mempty <> f) v
+
+combineRightIdentity :: (Eq b, Semigroup b, Monoid b) => Combine a b -> a -> Bool
+combineRightIdentity f v = unCombine f v == unCombine (f <> mempty) v
+
+    -- 7
+instance (Monoid a, Semigroup a) => Monoid (Comp a) where
+  mempty = Comp $ const mempty
+  mappend = (<>)
+
+compLeftIdentity :: (Eq a, Semigroup a, Monoid a) => Comp a -> a -> Bool
+compLeftIdentity f v = unComp f v == unComp (mempty <> f) v
+
+compRightIdentity :: (Eq a, Semigroup a, Monoid a) => Comp a -> a -> Bool
+compRightIdentity f v = unComp f v == unComp (f <> mempty) v
+
+    -- 8   This one is State in the future chapters
+         -- Please use mappend rather than <> with the print statements in book
+         -- Because the <> from Monoid is hidden
+newtype Mem s a =
+  Mem { runMem :: s -> (a, s) }
+
+instance Monoid a => Monoid (Mem s a) where
+  mempty = Mem $ \s -> (mempty, s)
+  (Mem f) `mappend` (Mem g) = Mem $ \s -> let (a1, s1) = f s
+                                              (a2, s2) = g s1
+                                          in (a1 `mappend` a2, s2)
+
+      -- Try Function packge in QuickCheck.
+memLeftIdentity :: (Eq a, Eq s, Monoid a) => Fun s (a,s) -> s -> Bool
+memLeftIdentity (Fun _ f) s =
+  runMem (mempty `mappend` (Mem f)) s == runMem (Mem f) s
+
+memRightIdentity :: (Eq a, Eq s, Monoid a) => Fun s (a,s) -> s -> Bool
+memRightIdentity (Fun _ f) s =
+  runMem ((Mem f) `mappend` mempty) s == runMem (Mem f) s
