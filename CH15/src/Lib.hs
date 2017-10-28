@@ -89,3 +89,84 @@ instance (Semigroup a, Semigroup b, Semigroup c, Semigroup d) => Semigroup (Four
 
 instance (Arbitrary a, Arbitrary b, Arbitrary c, Arbitrary d) => Arbitrary (Four a b c d) where
   arbitrary = Four <$> arbitrary <*> arbitrary <*> arbitrary <*> arbitrary
+
+    -- 6
+newtype BoolConj = BoolConj Bool deriving (Eq, Show)
+
+instance Semigroup BoolConj where
+  (BoolConj True) <> (BoolConj True) = BoolConj True
+  _ <> _ = BoolConj False
+
+instance Arbitrary BoolConj where
+  arbitrary = BoolConj <$> arbitrary
+
+    -- 7
+newtype BoolDisj = BoolDisj Bool deriving (Eq, Show)
+
+instance Semigroup BoolDisj where
+  (BoolDisj False) <> (BoolDisj False) = BoolDisj False
+  _ <> _ = BoolDisj True
+
+instance Arbitrary BoolDisj where
+  arbitrary = BoolDisj <$> arbitrary
+
+    -- 8
+data Or a b =
+    Fst a
+  | Snd b
+  deriving (Eq, Show)
+
+instance Semigroup (Or a b) where
+  a@(Snd _) <> _ = a
+  (Fst _) <> b = b
+
+instance (Arbitrary a, Arbitrary b) => Arbitrary (Or a b) where
+  arbitrary = frequency [(1, Fst <$> arbitrary), (1, Snd <$> arbitrary)]
+
+    -- 9  TODO Test
+newtype Combine a b =
+  Combine { unCombine :: a -> b}
+
+instance Semigroup b => Semigroup (Combine a b) where
+  (Combine f) <> (Combine g) = Combine ((<>) <$> f <*> g)
+
+    -- 10 TODO Test
+newtype Comp a = Comp {unComp :: a -> a}
+
+instance Semigroup a => Semigroup (Comp a) where
+  (Comp f) <> (Comp g) = Comp ((<>) <$> f <*> g)
+
+    -- 11
+data Validation' a b =
+  Failure' a | Success' b
+  deriving (Eq, Show)
+
+instance Semigroup a => Semigroup (Validation' a b) where
+  (Failure' a1) <> (Failure' a2) = Failure' (a1 <> a2)
+  a@(Failure' _) <> _ = a
+  _ <> b@(Failure' _) = b
+  a@(Success' _) <> _ = a
+
+instance (Arbitrary a, Arbitrary b) => Arbitrary (Validation' a b) where
+   arbitrary = frequency [(1, Failure' <$> arbitrary), (1, Success' <$> arbitrary)]
+
+    -- 12
+newtype AccumulateRight a b = AccumulateRight (Validation' a b) deriving (Eq, Show)
+
+instance (Semigroup b) => Semigroup (AccumulateRight a b) where
+  (AccumulateRight (Success' b1)) <> (AccumulateRight (Success' b2)) = AccumulateRight $ Success' $ b1 <> b2
+  v1@(AccumulateRight (Failure' _)) <> _ = v1
+  _ <> v2@(AccumulateRight (Failure' _)) = v2
+
+instance (Arbitrary a, Arbitrary b) => Arbitrary (AccumulateRight a b) where
+  arbitrary = AccumulateRight <$> arbitrary
+
+    -- 3
+newtype AccumulateBoth a b = AccumulateBoth (Validation' a b) deriving (Eq, Show)
+
+instance (Semigroup a, Semigroup b) => Semigroup (AccumulateBoth a b) where
+  (AccumulateBoth (Success' b1)) <> (AccumulateBoth (Success' b2)) = AccumulateBoth $ Success' $ b1 <> b2
+  (AccumulateBoth v1) <> (AccumulateBoth v2) = AccumulateBoth $ v1 <> v2
+
+instance (Arbitrary a, Arbitrary b) => Arbitrary (AccumulateBoth a b) where
+  arbitrary = AccumulateBoth <$> arbitrary

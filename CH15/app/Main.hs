@@ -18,3 +18,16 @@ main = do
   -- quickCheck (semigroupAssoc :: Trivial -> Trivial -> Trivial -> Bool)
   -- quickCheck (semigroupAssoc :: Identity String -> Identity String -> Identity String -> Bool)
   -- quickCheck (semigroupAssoc :: Two String (Sum Int) -> Two String (Sum Int) -> Two String (Sum Int) -> Bool)
+  -- quickCheck (semigroupAssoc :: Three String (Sum Int) String -> Three String (Sum Int) String -> Three String (Sum Int) String -> Bool)
+  -- quickCheck (semigroupAssoc :: Four String String String String -> Four String String String String -> Four String String String String -> Bool)
+  -- quickCheck (semigroupAssoc :: BoolConj -> BoolConj -> BoolConj -> Bool)
+  -- quickCheck (semigroupAssoc :: BoolDisj -> BoolDisj -> BoolDisj -> Bool)
+  -- quickCheck (semigroupAssoc :: Or Int Char -> Or Int Char -> Or Int Char -> Bool)
+
+  -- let f = Combine $ \n -> Sum (n+1)
+  -- let g = Combine $ \n -> Sum (n-1)
+
+  -- quickCheck (semigroupAssoc :: Validation' (Product Int) Char -> Validation' (Product Int) Char -> Validation' (Product Int) Char -> Bool)
+  -- quickCheck (semigroupAssoc :: AccumulateRight (Product Int) String ...
+  -- quickCheck (semigroupAssoc :: AccumulateBoth (Product Int) String ...
+  
