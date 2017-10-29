@@ -1,6 +1,7 @@
 module Lib where
 
 import Data.List (elemIndex)
+import Data.Monoid
 
 -- 17.5 Applicative in use
   -- Exercises: Lookups
@@ -46,3 +47,25 @@ y'' = lookup 2 $ zip xs ys
        -- The reason could be found the Chapter of Foldable
 summed :: Maybe Integer
 summed = sum <$> ((,) <$> x'' <*> y'')
+
+  -- Exercise: Identity Instance
+newtype Identity a = Identity a deriving (Eq, Ord, Show)
+
+instance Functor Identity where
+  fmap f (Identity a) = Identity $ f a
+
+instance Applicative Identity where
+  pure = Identity
+  (Identity f) <*> (Identity a) = Identity $ f a
+
+  -- Exercise: Constant Instance
+newtype Constant a b =
+  Constant { getConstant :: a}
+  deriving (Eq, Ord, Show)
+
+instance Functor (Constant a) where
+  fmap _ (Constant a) = Constant a
+
+instance Monoid a => Applicative (Constant a) where
+  pure _ = Constant mempty
+  (Constant a1) <*> (Constant a2) = Constant $ a1 <> a2
