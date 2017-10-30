@@ -28,6 +28,13 @@ main = do
   -- z <*> z'
   -- Result> ZipList' (Cons 10 (Cons 2 (Cons 9 Nil)))
 
+  -- 17.8 ZipList Monoid; List Applicative Exercise
+  -- quickBatch (applicative (undefined :: List (Product Int, String, Int)))
+  -- 17.8 ZipList Monoid; ZipList Applicative Exercise
+  -- quickBatch (applicative (undefined :: ZipList' (Product Int, Char, Int)))
+  -- 17.8 ZipList Monoid; Exercise: Variations on Either
+  -- quickBatch (applicative (undefined :: Validation (Product Int, String, Sum Int) (Sum Int, Char, Sum Int)))
+
   -- 17.9 Chapter Exercises
     -- Write applicative instance
   -- quickBatch (applicative (undefined :: Pair (String, String, Int)))
@@ -36,4 +43,3 @@ main = do
   -- quickBatch (applicative (undefined :: Three' (Product Int, String, Sum Int) (Sum Int, All, Sum Int)))
   -- quickBatch (applicative (undefined :: Four (Product Int, String, Sum Int) (String, String, Sum Int) (Product Int, String, Sum Int) (Product Int, String, Sum Int)))
   -- quickBatch (applicative (undefined :: Four' (Product Int, String, Sum Int) (Char, Int, Sum Int)))
-  

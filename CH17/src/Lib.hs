@@ -76,7 +76,7 @@ instance Monoid a => Applicative (Constant a) where
   (Constant a1) <*> (Constant a2) = Constant $ a1 <> a2
 
 -- 17.8 ZipList Monoid
-  -- List Applicative Exercise TODO checker test
+  -- List Applicative Exercise
 data List a =
     Nil
   | Cons a (List a)
@@ -105,7 +105,18 @@ fold :: (a->b->b)->b->List a->b
 fold _ b Nil = b
 fold f b (Cons h t) = f h (fold f b t)
 
-  -- ZipList Applicative Exercise  TODO checker test
+instance (Eq a) => EqProp (List a) where (=-=) = eq
+
+fromList :: [a] -> List a
+fromList = foldr Cons Nil
+
+-- As List is homogeneous with [a]
+-- Here we construct a [a], then convert to a List. Put a limit of 200 to avoid extremely long list
+-- Another alternative is using sized from QuickCheck which we will see in future chapters
+instance (Arbitrary a) => Arbitrary (List a) where
+  arbitrary = fromList . take 200 <$> arbitrary
+
+  -- ZipList Applicative Exercise
 newtype ZipList' a =
   ZipList' (List a)
   deriving (Eq, Show)
@@ -129,6 +140,9 @@ take' _ Nil = Nil
 take' 0 as = Nil
 take' n (Cons a as) = Cons a $ take' (n-1) as
 
+instance Arbitrary a => Arbitrary (ZipList' a) where
+  arbitrary = ZipList' <$> arbitrary
+
 instance Eq a => EqProp (ZipList' a) where
   xs =-= ys = xs' `eq` ys'
     where xs' = let (ZipList' l) = xs
@@ -136,7 +150,7 @@ instance Eq a => EqProp (ZipList' a) where
           ys' = let (ZipList' l) = ys
                 in take' 3000 l
 
-  -- Exercise: Variations on Either TODO checker  TEST
+  -- Exercise: Variations on Either
 data Validation e a =
     Failure' e
   | Success' a
@@ -152,6 +166,11 @@ instance Monoid e => Applicative (Validation e) where
   (Failure' e) <*> _ = Failure' e
   _ <*> (Failure' e) = Failure' e
   (Success' f) <*> (Success' a) = Success' $ f a
+
+instance (Arbitrary e, Arbitrary a) => Arbitrary (Validation e a) where
+  arbitrary = frequency [(1, Failure' <$> arbitrary), (1, Success' <$> arbitrary)]
+
+instance (Eq a, Eq e) => EqProp (Validation e a) where (=-=) = eq
 
 -- 17.9 Chapter Exercises
   -- Applicative type verification. Here in REPL, let p1 = ....
@@ -271,5 +290,4 @@ vowels = "aeiou"
 
 combos :: [a] -> [b] -> [c] -> [(a, b, c)]
 combos = liftA3 (,,)
-
 -- combos stops vowels stops
