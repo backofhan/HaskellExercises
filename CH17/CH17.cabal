@@ -18,6 +18,7 @@ library
   exposed-modules:     Lib
   build-depends:       base >= 4.7 && < 5
                      , QuickCheck
+                     , checkers
   default-language:    Haskell2010
 
 executable CH16-exe
@@ -27,6 +28,7 @@ executable CH16-exe
   build-depends:       base
                      , CH17
                      , QuickCheck
+                     , checkers
   default-language:    Haskell2010
 
 test-suite CH16-test
@@ -36,6 +38,7 @@ test-suite CH16-test
   build-depends:       base
                      , CH17
                      , QuickCheck
+                     , checkers
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 
