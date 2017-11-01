@@ -12,3 +12,6 @@ main = do
 
   -- 18.7 Chapter Exercises
   --  quickBatch (monad (undefined :: Nope (String, String, Int)))
+  --  quickBatch (monad (undefined :: PhEither (String, String, Int) (Char, Int, Int)))
+  --  quickBatch (monad (undefined :: Identity (Char, Int, Int)))
+  --  quickBatch (monad (undefined :: List (Char, Int, Int)))
