@@ -44,5 +44,6 @@ module Lib where
   -- Make the expression bottom
   x = undefined
   y = "blah"
-  -- print (snd (x, y))
-  
+  -- print (snd (x, x `seq` y))
+  -- print (x `seq` snd (x, y))
+  -- x `seq` print (snd (x, y))
