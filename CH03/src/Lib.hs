@@ -54,3 +54,8 @@ funcC = drop 9
 --      3.
 thirdLetter :: String -> Char
 thirdLetter = (!! 2)
+--      4.
+letterIndex :: Int -> Char
+letterIndex = ("Curry is awesome!" !!)
+--      5. It is really boring to count characters, ignore it.
+--      6. This depends on 5. Ignore, ignore ...
