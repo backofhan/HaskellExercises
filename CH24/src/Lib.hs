@@ -159,6 +159,13 @@ parsePhone = do
   lineNumber <- count 4 digit
   return $ PhoneNumber (read numberingPlanArea) (read exchange) (read lineNumber)
 
+-- Applicative style. As there are too many tricks, it seems monad style is better.
+parsePhone' :: Parser PhoneNumber
+parsePhone' = PhoneNumber
+  <$> (optional ((digit *> char '-') <|> char '(') *> (read <$> count 3 digit))
+  <*> (optional (char '-' <|> (char ')' *> char ' ')) *> (read <$> count 3 digit))
+  <*> (optional (char '-') *> (read <$> count 4 digit))
+
 --     5. Log file TODO
 
 --     6. IPv4 addresses
