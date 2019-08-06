@@ -6,6 +6,7 @@ import Data.Ratio ((%))
 import Data.Char(digitToInt)
 import Data.Word
 import Data.Bits
+import Data.List (foldl')
 
 stop :: Parser a
 stop = unexpected "stop"
@@ -175,4 +176,43 @@ parseIPv4Address = IPAddress . fromIntegral <$> (integer `chainl1` do {char '.';
 -- parseString parseIPv4Address mempty "172.16.254.1" -- Should be: Success (IPAddress 2886794753)
 -- parseString parseIPv4Address mempty "204.120.0.15" -- Should be: Success (IPAddress 3430416399)
 
---     7. IPv6 addresses TODO
+--     7. IPv6 addresses
+data IPAddress6 =
+  IPAddress6 Word64 Word64
+  deriving (Eq, Ord, Show)
+
+parseIPv6AddressAsInteger :: Parser Integer
+parseIPv6AddressAsInteger = convertToInteger <$> parseIPv6Address
+
+parseIPv6Address :: Parser IPAddress6
+parseIPv6Address = makeIPv6Address.expandAbb <$> parseIPv6AddressAsIntList
+
+parseHex :: Parser Integer
+parseHex = read.("0x"++) <$> some (oneOf "0123456789abcdefABCDEF")
+
+parseIPv6AddressAsIntList :: Parser [Integer]
+parseIPv6AddressAsIntList = do
+  l <- parseHex `sepEndBy` char ':'
+  r <- try (some (char ':') >> (-1:) <$> (parseHex `sepBy` char ':')) <|> mempty
+  return $ l ++ r
+
+expandAbb :: [Integer] -> [Integer]
+expandAbb nums = nums >>= (\n -> if n == (-1) then replicate (9 - length nums) 0 else [n])
+
+makeIPv6Address :: [Integer] -> IPAddress6
+makeIPv6Address nums = IPAddress6 (aggr h)  (aggr l)
+    where (h, l) = splitAt 4 $ map fromIntegral nums
+          aggr = foldl' (\acc n->acc `shiftL` 16 .|. n) 0
+
+convertToInteger :: IPAddress6 -> Integer
+convertToInteger (IPAddress6 h l) = toInteger h * (toInteger (maxBound :: Word64) + 1)
+                                  + toInteger l
+-- parseString parseIPv6AddressAsInteger mempty "FE80::0202:B3FF:FE1E:8329"
+--   should be: Success 338288524927261089654163772891438416681
+-- parseString parseIPv6AddressAsInteger mempty "FE80:0000:0000000:0000:0202:B3FF:FE1E:8329"
+--   should be: Success 338288524927261089654163772891438416681
+-- parseString parseIPv6AddressAsInteger mempty "0:0:0:0:0:ffff:cc78:f"
+--   Should be: Success 281474112159759
+-- parseString parseIPv6AddressAsInteger mempty "::ffff:cc78:f"
+--   Should be: Success 281474112159759
+-- Also some examples: "1::"  "::1" "1::1"
