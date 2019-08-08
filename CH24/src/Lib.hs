@@ -6,7 +6,8 @@ import Data.Ratio ((%))
 import Data.Char(digitToInt)
 import Data.Word
 import Data.Bits
-import Data.List (foldl')
+import Data.List (foldl', intercalate, unfoldr)
+import Numeric (showHex)
 
 stop :: Parser a
 stop = unexpected "stop"
@@ -131,7 +132,7 @@ base10Integer' :: Parser Integer
 base10Integer' = digitsToBase10Int.fmap digitToInt <$> some parseDigit
                  where digitsToBase10Int = foldl (\acc x -> acc * 10 + fromIntegral x) 0
 
---     3. Parse aso negative integer
+--     3. Parse also negative integer
 base10Integer'' :: Parser Integer
 base10Integer'' = do
   sig <- oneOf "+-" <|> return '+'
@@ -215,4 +216,18 @@ convertToInteger (IPAddress6 h l) = toInteger h * (toInteger (maxBound :: Word64
 --   Should be: Success 281474112159759
 -- parseString parseIPv6AddressAsInteger mempty "::ffff:cc78:f"
 --   Should be: Success 281474112159759
--- Also some examples: "1::"  "::1" "1::1"
+-- More examples: "1::"  "::1" "1::1"
+
+--     8. Show IPAddress & IPAddress6
+newtype ShowIPAddress = ShowIPAddress IPAddress
+
+instance Show ShowIPAddress where
+  show (ShowIPAddress (IPAddress w)) = intercalate "."  $ map (\p -> show $ w `shiftR` p .&. 0xff) [24, 16, 8, 0]
+-- ShowIPAddress <$> parseString parseIPv4Address mempty "172.16.254.1"
+
+newtype ShowIPAddress6 = ShowIPAddress6 IPAddress6
+
+instance Show ShowIPAddress6 where
+  show (ShowIPAddress6 (IPAddress6 h l)) = intercalate ":" . map (`showHex` "") $ toIntList h ++ toIntList l
+      where toIntList w = map (\p -> w `shiftR` p .&. 0xffff) [48, 32, 16, 0]
+-- ShowIPAddress6 <$> parseString parseIPv6Address mempty "FE80::0202:B3FF:FE1E:8329"
