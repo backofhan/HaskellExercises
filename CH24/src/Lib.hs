@@ -8,6 +8,7 @@ import Data.Word
 import Data.Bits
 import Data.List (foldl', intercalate, unfoldr)
 import Numeric (showHex)
+import Control.Monad (guard)
 
 stop :: Parser a
 stop = unexpected "stop"
@@ -231,3 +232,12 @@ instance Show ShowIPAddress6 where
   show (ShowIPAddress6 (IPAddress6 h l)) = intercalate ":" . map (`showHex` "") $ toIntList h ++ toIntList l
       where toIntList w = map (\p -> w `shiftR` p .&. 0xffff) [48, 32, 16, 0]
 -- ShowIPAddress6 <$> parseString parseIPv6Address mempty "FE80::0202:B3FF:FE1E:8329"
+
+--     9. Convertion between IPAdress & IPAddress6
+convertIPv4ToIPv6:: IPAddress -> IPAddress6
+convertIPv4ToIPv6 (IPAddress w)= IPAddress6 0 (0xffff00000000 .|. fromIntegral w)
+
+convertIPv6ToIPv4:: IPAddress6 -> Maybe IPAddress
+convertIPv6ToIPv4 (IPAddress6 h l) = do
+  guard $ h == 0 && l .&. 0xffffffff00000000 == 0xffff00000000
+  return $ IPAddress . fromIntegral $ l .&. 0xffffffff
