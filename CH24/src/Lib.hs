@@ -241,3 +241,5 @@ convertIPv6ToIPv4:: IPAddress6 -> Maybe IPAddress
 convertIPv6ToIPv4 (IPAddress6 h l) = do
   guard $ h == 0 && l .&. 0xffffffff00000000 == 0xffff00000000
   return $ IPAddress . fromIntegral $ l .&. 0xffffffff
+-- convertIPv6ToIPv4 $ convertIPv4ToIPv6 $ IPAddress 2886794753  -- Should by Just (IPAddress 2886794753)
+-- convertIPv6ToIPv4 $ IPAddress6 2 281473568538113 -- Should be Nothing
